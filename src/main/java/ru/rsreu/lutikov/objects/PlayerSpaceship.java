@@ -2,6 +2,7 @@ package ru.rsreu.lutikov.objects;
 
 import java.awt.*;
 import java.util.Queue;
+import java.util.List;
 import java.util.Iterator;
 
 public class PlayerSpaceship {
@@ -18,74 +19,63 @@ public class PlayerSpaceship {
 
     private Score score;
 
-    private Queue<EnemySpaceship> enemySpaceshipQueue;
+    private List<EnemySpaceship> enemySpaceshipList;
 
-    private Queue<Money> moneyQueue;
+    private List<Money> moneyList;
 
-    private Queue<Bullet> enemyBulletQueue;
+    private List<Bullet> enemyBulletList;
 
-    private Queue<Bullet> playerBulletQueue;
+    private List<Bullet> playerBulletList;
 
-    public PlayerSpaceship(GameField gameField, Point location, Dimension dimension, int shiftX, int shiftY, Score score, Queue enemySpaceshipQueue, Queue moneyQueue, Queue enemyBulletQueue, Queue playerBulletQueue) {
+    public PlayerSpaceship(GameField gameField, Point location, Dimension dimension, int shiftX, int shiftY, Score score,
+                           List enemySpaceshipList,
+                           List moneyList, List enemyBulletList, List playerBulletList) {
         this.gameField = gameField;
         this.location = location;
         this.dimension = dimension;
         this.shiftX = shiftX;
         this.shiftY = shiftY;
         this.score = score;
-        this.enemySpaceshipQueue = enemySpaceshipQueue;
-        this.moneyQueue = moneyQueue;
-        this.enemyBulletQueue = enemyBulletQueue;
-        this.playerBulletQueue = playerBulletQueue;
+        this.enemySpaceshipList = enemySpaceshipList;
+        this.moneyList = moneyList;
+        this.enemyBulletList = enemyBulletList;
+        this.playerBulletList = playerBulletList;
     }
 
     void getMoney() {
-        if ((this.location.x == moneyQueue.peek().getLocation().getX()) && (this.location.y == moneyQueue.peek().getLocation().getY())) {
-            moneyQueue.poll();
+        if ((!this.moneyList.isEmpty()) && (this.location.x == this.moneyList.get(0).getLocation().x) && (this.location.y == this.moneyList.get(0).getLocation().y)) {
+            this.moneyList.remove(0);
             this.score.addMoney();
+            System.out.println("Монета получена");
+            System.out.printf("Счет %d\n", score.getScoreValue());
         }
     }
 
     void getDestruction() {
-        Iterator<Bullet> bulletIterator = playerBulletQueue.iterator();
+        Iterator<Bullet> bulletIterator = playerBulletList.iterator();
 
         while (bulletIterator.hasNext()) {
-            Iterator<EnemySpaceship> enemySpaceshipIterator = enemySpaceshipQueue.iterator();
             Bullet bullet = bulletIterator.next();
-            while (enemySpaceshipIterator.hasNext()) {
-                EnemySpaceship enemySpaceship = enemySpaceshipIterator.next();
-                if ((bullet.getLocation().getX() == enemySpaceship.getLocation().getX()) && (bullet.getLocation().getY() == enemySpaceship.getLocation().getY())) {
-                    System.out.println("Пуля уничтожила вражеский корабль");
-                    System.out.printf("Счет %d", score.getScoreValue());
-                    this.score.addDestruction();
-                    enemySpaceshipIterator.remove();
-                    bulletIterator.remove();
-                }
+            if ((bullet.getLocation().getX() == enemySpaceshipList.get(0).getLocation().getX()) && (bullet.getLocation().getY() == enemySpaceshipList.get(0).getLocation().getY())) {
+                System.out.println("Пуля уничтожила вражеский корабль");
+                System.out.printf("Счет %d", score.getScoreValue());
+                this.score.addDestruction();
+                bulletIterator.remove();
             }
         }
-
-
-        if ((this.location.x == moneyQueue.peek().getLocation().getX()) && (this.location.y == moneyQueue.peek().getLocation().getY())) {
-            moneyQueue.poll();
-            this.score.addMoney();
-            System.out.println("Монета получена");
-            System.out.printf("Счет %d", score.getScoreValue());
-        }
     }
 
-    // TODO
     void makeShot() {
         Bullet bullet = new Bullet(this.gameField, this.location);
-        playerBulletQueue.add(bullet);
+        this.playerBulletList.add(bullet);
     }
 
-    // TODO
     void checkCollision() {
-        if ((!enemyBulletQueue.isEmpty()) && (this.location.x == enemyBulletQueue.peek().getLocation().getX()) && (this.location.y == enemyBulletQueue.peek().getLocation().getY())) {
+        if ((!enemyBulletList.isEmpty()) && (this.location.x == enemyBulletList.get(0).getLocation().getX()) && (this.location.y == enemyBulletList.get(0).getLocation().getY())) {
             System.out.println("Корабль столкнулся с пулей");
             System.exit(0);
         }
-        if ((!enemySpaceshipQueue.isEmpty()) && (this.location.x == enemySpaceshipQueue.peek().getLocation().getX()) && (this.location.y == enemySpaceshipQueue.peek().getLocation().getY())) {
+        if ((this.location.x == enemySpaceshipList.get(0).getLocation().getX()) && (this.location.y == enemySpaceshipList.get(0).getLocation().getY())) {
             System.out.println("Корабли столкнулись");
             System.exit(0);
         }
@@ -101,19 +91,34 @@ public class PlayerSpaceship {
         if (this.location.x < 0) {
             this.location.x = 0;
             this.shiftX = -this.shiftX;
-            System.out.println("Корабль отскочил от левой стены");
+            System.out.println("Корабль сопрокоснулся с левой границей");
         }
 
         if (this.location.x + this.dimension.width > gameFieldDimension.width) {
             this.location.x = gameFieldDimension.width - this.dimension.width;
             this.shiftX = -this.shiftX;
-            System.out.println("Корабль отскочил от правой стены");
+            System.out.println("Корабль соприкоснулся с правой границей");
         }
 
-        System.out.printf("Координаты X, Y = %d, %3d\n", this.location.x, this.location.y);
+        System.out.printf("Координаты корабля игрока X, Y = %d, %3d\n", this.location.x, this.location.y);
+        this.getMoney();
+        this.makeShot();
+        this.getDestruction();
+    }
+
+    public void setMoneyList(List<Money> moneyList) {
+        this.moneyList = moneyList;
     }
 
     public Point getLocation() {
         return this.location;
+    }
+
+    public void setEnemySpaceshipList(List enemySpaceshipList) {
+        this.enemySpaceshipList = enemySpaceshipList;
+    }
+
+    public List<Money> getMoneyList() {
+        return this.moneyList;
     }
 }

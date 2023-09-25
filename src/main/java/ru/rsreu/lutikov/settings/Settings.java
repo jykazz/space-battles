@@ -5,6 +5,9 @@ import java.awt.*;
 public final class Settings {
     private Settings() {
     }
+
+    public static final int CYCLE_COUNT = 15;
+
     public static final int PLAYER_SPACESHIP_INITIAL_POSITION_X = 5;
     public static final int PLAYER_SPACESHIP_INITIAL_POSITION_Y = 1;
     public static final Point PLAYER_SPACESHIP_INITIAL_LOCATION = new Point(Settings.PLAYER_SPACESHIP_INITIAL_POSITION_X, Settings.PLAYER_SPACESHIP_INITIAL_POSITION_Y);
@@ -30,10 +33,10 @@ public final class Settings {
     public static final int MONEY_SHIFT_Y = 1;
 
 
-    public static final int BULLET_SHIFT = 1;
+    public static final int BULLET_SHIFT_Y = 1;
     public static final int BULLET_WIDTH = 1;
     public static final int BULLET_HEIGHT = 1;
-    public static final Dimension BULLET_DIMENSION = new Dimension(Settings.PLAYER_SPACESHIP_WIDTH, Settings.PLAYER_SPACESHIP_HEIGHT);
+    public static final Dimension BULLET_DIMENSION = new Dimension(Settings.BULLET_WIDTH, Settings.BULLET_HEIGHT);
     public static final int BULLET_VALUE = 10;
 
     public static final int GAME_FIELD_WIDTH = 9;
